@@ -3,16 +3,27 @@ import { TweetStream } from '@/components/TweetStream';
 import { MapReduceVisualization } from '@/components/MapReduceVisualization';
 import { HashtagAnalytics } from '@/components/HashtagAnalytics';
 import { SystemMetrics } from '@/components/SystemMetrics';
+import { TweetInput } from '@/components/TweetInput';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BarChart3, Activity, Hash, Server } from 'lucide-react';
+import { useMapReduce } from '@/hooks/useMapReduce';
+import { useTweets } from '@/hooks/useTweets';
 
 const Index = () => {
   const [currentHashtags, setCurrentHashtags] = useState<string[]>([]);
+  const { jobs } = useMapReduce();
+  const { tweets } = useTweets();
 
   const handleHashtagExtraction = useCallback((hashtags: string[]) => {
     setCurrentHashtags(hashtags);
   }, []);
+
+  // Calculate real metrics from database
+  const totalTweets = tweets.length;
+  const processedTweets = tweets.filter(t => t.processed).length;
+  const totalHashtags = tweets.reduce((sum, t) => sum + t.hashtags.length, 0);
+  const latestJob = jobs[0];
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,8 +65,8 @@ const Index = () => {
             <div className="flex items-center gap-3">
               <Activity className="w-8 h-8 text-tech-blue" />
               <div>
-                <div className="text-2xl font-bold text-foreground">2.3M</div>
-                <div className="text-sm text-muted-foreground">Tweets Processed</div>
+                <div className="text-2xl font-bold text-foreground">{totalTweets.toLocaleString()}</div>
+                <div className="text-sm text-muted-foreground">Total Tweets</div>
               </div>
             </div>
           </Card>
@@ -64,8 +75,8 @@ const Index = () => {
             <div className="flex items-center gap-3">
               <Hash className="w-8 h-8 text-tech-green" />
               <div>
-                <div className="text-2xl font-bold text-foreground">45.2K</div>
-                <div className="text-sm text-muted-foreground">Unique Hashtags</div>
+                <div className="text-2xl font-bold text-foreground">{totalHashtags.toLocaleString()}</div>
+                <div className="text-sm text-muted-foreground">Total Hashtags</div>
               </div>
             </div>
           </Card>
@@ -74,8 +85,8 @@ const Index = () => {
             <div className="flex items-center gap-3">
               <BarChart3 className="w-8 h-8 text-tech-purple" />
               <div>
-                <div className="text-2xl font-bold text-foreground">892</div>
-                <div className="text-sm text-muted-foreground">Tweets/Second</div>
+                <div className="text-2xl font-bold text-foreground">{processedTweets.toLocaleString()}</div>
+                <div className="text-sm text-muted-foreground">Processed</div>
               </div>
             </div>
           </Card>
@@ -84,11 +95,18 @@ const Index = () => {
             <div className="flex items-center gap-3">
               <Server className="w-8 h-8 text-tech-orange" />
               <div>
-                <div className="text-2xl font-bold text-foreground">8</div>
-                <div className="text-sm text-muted-foreground">Active Nodes</div>
+                <div className="text-2xl font-bold text-foreground">
+                  {latestJob ? latestJob.status === 'running' ? 'Active' : 'Idle' : 'Ready'}
+                </div>
+                <div className="text-sm text-muted-foreground">MapReduce Status</div>
               </div>
             </div>
           </Card>
+        </div>
+
+        {/* Tweet Input */}
+        <div className="mb-8">
+          <TweetInput />
         </div>
 
         {/* Main Dashboard Grid */}
