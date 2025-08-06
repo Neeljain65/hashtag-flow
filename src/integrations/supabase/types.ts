@@ -14,7 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      hashtag_counts: {
+        Row: {
+          count: number
+          created_at: string
+          hashtag: string
+          hour_window: string
+          id: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          hashtag: string
+          hour_window: string
+          id?: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          hashtag?: string
+          hour_window?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      mapreduce_jobs: {
+        Row: {
+          completed_at: string | null
+          error_message: string | null
+          hashtags_extracted: number
+          id: string
+          job_type: string
+          started_at: string
+          status: string
+          tweets_processed: number
+        }
+        Insert: {
+          completed_at?: string | null
+          error_message?: string | null
+          hashtags_extracted?: number
+          id?: string
+          job_type: string
+          started_at?: string
+          status: string
+          tweets_processed?: number
+        }
+        Update: {
+          completed_at?: string | null
+          error_message?: string | null
+          hashtags_extracted?: number
+          id?: string
+          job_type?: string
+          started_at?: string
+          status?: string
+          tweets_processed?: number
+        }
+        Relationships: []
+      }
+      tweets: {
+        Row: {
+          content: string
+          created_at: string
+          hashtags: string[]
+          id: string
+          processed: boolean
+          tweet_id: string
+          user_name: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          hashtags?: string[]
+          id?: string
+          processed?: boolean
+          tweet_id: string
+          user_name: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          hashtags?: string[]
+          id?: string
+          processed?: boolean
+          tweet_id?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
