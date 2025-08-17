@@ -110,7 +110,7 @@ const Index = () => {
         </div>
 
         {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid ">
           {/* Left Column */}
           <div className="space-y-8">
             {/* Tweet Stream */}
@@ -124,18 +124,8 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Right Column */}
-          <div className="space-y-8">
-            {/* MapReduce Visualization */}
-            <div className="h-[600px]">
-              <MapReduceVisualization hashtags={currentHashtags} />
-            </div>
-            
-            {/* System Metrics */}
-            <div className="h-[600px]">
-              <SystemMetrics />
-            </div>
-          </div>
+        
+          
         </div>
 
         {/* Architecture Overview */}

@@ -76,7 +76,7 @@ export const HashtagAnalytics = ({ incomingHashtags }: HashtagAnalyticsProps) =>
   const maxCount = Math.max(...hashtagCounts.map(h => h.count), 1);
 
   return (
-    <Card className="h-full bg-gradient-to-br from-card to-secondary/20 border-border/50">
+    <Card className="h-full overflow-y-scroll bg-gradient-to-br from-card to-secondary/20 border-border/50">
       <div className="p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-2 rounded-lg bg-gradient-data">
@@ -118,7 +118,7 @@ export const HashtagAnalytics = ({ incomingHashtags }: HashtagAnalyticsProps) =>
           <div className="mb-6 p-4 rounded-lg bg-gradient-primary text-white">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-lg font-semibold">#{topHashtag.hashtag}</div>
+                <div className="text-lg font-semibold">{topHashtag.hashtag}</div>
                 <div className="text-sm opacity-90">Trending now</div>
               </div>
               <div className="text-right">
@@ -146,7 +146,7 @@ export const HashtagAnalytics = ({ incomingHashtags }: HashtagAnalyticsProps) =>
                     variant="outline"
                     className="text-sm bg-tech-blue/10 text-tech-blue border-tech-blue/20"
                   >
-                    #{hashtag.hashtag}
+                    {hashtag.hashtag}
                   </Badge>
                   {hashtag.trend === 'up' && (
                     <TrendingUp className="w-4 h-4 text-tech-green" />

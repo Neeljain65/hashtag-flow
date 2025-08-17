@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Twitter, Hash, TrendingUp } from 'lucide-react';
+import { Twitter, Hash, TrendingUp, Loader2 } from 'lucide-react';
+import { useTweets, Tweet as DBTweet } from '@/hooks/useTweets';
 
 interface Tweet {
   id: string;
@@ -16,38 +17,36 @@ interface TweetStreamProps {
   onHashtagExtracted: (hashtags: string[]) => void;
 }
 
-const mockTweets: Omit<Tweet, 'id' | 'timestamp'>[] = [
-  { user: 'TechGuru', content: 'Breaking: New AI breakthrough in #MachineLearning and #DeepLearning #Tech', hashtags: ['MachineLearning', 'DeepLearning', 'Tech'], avatar: '🤖' },
-  { user: 'DataScientist', content: 'Loving the new #BigData tools for #Analytics and #DataProcessing', hashtags: ['BigData', 'Analytics', 'DataProcessing'], avatar: '📊' },
-  { user: 'CloudExpert', content: 'Just deployed a massive #Kubernetes cluster with #Docker containers #DevOps', hashtags: ['Kubernetes', 'Docker', 'DevOps'], avatar: '☁️' },
-  { user: 'AIResearcher', content: 'Working on #NLP models for better #TextAnalysis and #SentimentAnalysis', hashtags: ['NLP', 'TextAnalysis', 'SentimentAnalysis'], avatar: '🧠' },
-  { user: 'WebDev', content: 'Building responsive UIs with #React #JavaScript and #TypeScript', hashtags: ['React', 'JavaScript', 'TypeScript'], avatar: '💻' },
-  { user: 'MobileGuru', content: 'Flutter vs React Native debate continues #Flutter #ReactNative #MobileDev', hashtags: ['Flutter', 'ReactNative', 'MobileDev'], avatar: '📱' },
-  { user: 'CyberSecPro', content: 'Important security updates for #CyberSecurity and #DataProtection #InfoSec', hashtags: ['CyberSecurity', 'DataProtection', 'InfoSec'], avatar: '🔒' },
-  { user: 'StartupFounder', content: 'Scaling our #Startup with #Microservices architecture #Innovation', hashtags: ['Startup', 'Microservices', 'Innovation'], avatar: '🚀' },
-];
-
 export const TweetStream = ({ onHashtagExtracted }: TweetStreamProps) => {
-  const [tweets, setTweets] = useState<Tweet[]>([]);
-  const [isStreaming, setIsStreaming] = useState(true);
+  const { tweets: dbTweets, loading, error } = useTweets();
+  const [displayTweets, setDisplayTweets] = useState<Tweet[]>([]);
 
+  // Convert database tweets to display format
   useEffect(() => {
-    if (!isStreaming) return;
+    const convertedTweets = dbTweets.map((dbTweet): Tweet => ({
+      id: dbTweet.id,
+      user: dbTweet.user_name,
+      content: dbTweet.content,
+      hashtags: dbTweet.hashtags,
+      timestamp: new Date(dbTweet.created_at).toLocaleTimeString(),
+      avatar: getAvatarForUser(dbTweet.user_name),
+    }));
 
-    const interval = setInterval(() => {
-      const mockTweet = mockTweets[Math.floor(Math.random() * mockTweets.length)];
-      const newTweet: Tweet = {
-        ...mockTweet,
-        id: Math.random().toString(36).substr(2, 9),
-        timestamp: new Date().toLocaleTimeString(),
-      };
+    setDisplayTweets(convertedTweets);
 
-      setTweets(prev => [newTweet, ...prev.slice(0, 9)]);
-      onHashtagExtracted(newTweet.hashtags);
-    }, 2000);
+    // Extract hashtags for analytics when tweets change
+    const allHashtags = convertedTweets.flatMap(tweet => tweet.hashtags);
+    if (allHashtags.length > 0) {
+      onHashtagExtracted(allHashtags);
+    }
+  }, [dbTweets, onHashtagExtracted]);
 
-    return () => clearInterval(interval);
-  }, [isStreaming, onHashtagExtracted]);
+  // Function to generate avatar based on username
+  const getAvatarForUser = (username: string): string => {
+    const avatars = ['🤖', '📊', '☁️', '🧠', '💻', '📱', '🔒', '🚀', '🎯', '🌟'];
+    const index = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return avatars[index % avatars.length];
+  };
 
   return (
     <Card className="h-full overflow-hidden bg-gradient-to-br from-card to-secondary/20 border-border/50">
@@ -63,15 +62,28 @@ export const TweetStream = ({ onHashtagExtracted }: TweetStreamProps) => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${isStreaming ? 'bg-tech-green animate-pulse' : 'bg-muted'}`} />
+            <div className={`w-3 h-3 rounded-full ${loading ? 'bg-tech-green animate-pulse' : 'bg-tech-blue'}`} />
             <span className="text-sm text-muted-foreground">
-              {isStreaming ? 'Streaming' : 'Paused'}
+              {loading ? 'Loading...' : 'Live'}
             </span>
           </div>
         </div>
 
         <div className="space-y-4 max-h-[600px] overflow-y-auto scrollbar-hide">
-          {tweets.map((tweet, index) => (
+          {error && (
+            <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+              Error loading tweets: {error}
+            </div>
+          )}
+          
+          {loading && displayTweets.length === 0 && (
+            <div className="text-center py-12">
+              <Loader2 className="w-8 h-8 text-muted-foreground mx-auto mb-4 animate-spin" />
+              <p className="text-muted-foreground">Loading tweets...</p>
+            </div>
+          )}
+
+          {displayTweets.map((tweet, index) => (
             <div
               key={tweet.id}
               className="p-4 rounded-lg bg-background/50 border border-border/30 animate-slide-right"
@@ -105,10 +117,10 @@ export const TweetStream = ({ onHashtagExtracted }: TweetStreamProps) => {
           ))}
         </div>
 
-        {tweets.length === 0 && (
+        {displayTweets.length === 0 && !loading && !error && (
           <div className="text-center py-12">
             <TrendingUp className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">Waiting for tweets...</p>
+            <p className="text-muted-foreground">No tweets available</p>
           </div>
         )}
       </div>

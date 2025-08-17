@@ -43,7 +43,7 @@ export const MapReduceVisualization = ({ hashtags }: MapReduceVisualizationProps
       };
       setSteps(prev => [inputStep, ...prev.slice(0, 4)]);
 
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise(resolve => setTimeout(resolve, 8000));
 
       // Map stage
       setCurrentStep('map');
@@ -202,7 +202,7 @@ export const MapReduceVisualization = ({ hashtags }: MapReduceVisualizationProps
                     <span className="text-muted-foreground">Input:</span>
                     {Array.isArray(step.data) && step.data.map((hashtag, i) => (
                       <Badge key={i} variant="outline" className="text-xs">
-                        #{hashtag}
+                        {hashtag}
                       </Badge>
                     ))}
                   </div>
@@ -240,7 +240,7 @@ export const MapReduceVisualization = ({ hashtags }: MapReduceVisualizationProps
                     <div className="grid grid-cols-2 gap-2">
                       {Array.isArray(step.data) && step.data.map((item, i) => (
                         <Badge key={i} className="text-xs bg-tech-green/10 text-tech-green border-tech-green/20">
-                          #{item.hashtag}: {item.count}
+                          {item.hashtag}: {item.count}
                         </Badge>
                       ))}
                     </div>
